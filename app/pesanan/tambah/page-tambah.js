@@ -45,6 +45,10 @@ export default function HalamanTambahPesanan() {
   const layananTerpilih = layananList.find((l) => l.id === layananId);
   const totalHarga = layananTerpilih ? layananTerpilih.harga * (jumlah || 0) : 0;
 
+  // ============================================================
+  // ESTIMASI WAKTU SELESAI — dihitung ulang otomatis tiap kali
+  // layanan/jumlah berubah, berdasarkan panjang antrian saat ini.
+  // ============================================================
   const estimasi =
     layananTerpilih && jumlah > 0
       ? estimasiSelesai(layananTerpilih, jumlah, jumlahAntrian)
@@ -179,6 +183,7 @@ export default function HalamanTambahPesanan() {
             </div>
           </form>
 
+          {/* KARTU ESTIMASI WAKTU SELESAI */}
           <div className="card estimasi-card">
             <h3 style={{ fontSize: 15, marginBottom: 14 }}>⏱ Perkiraan Selesai</h3>
             {estimasi ? (

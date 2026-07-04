@@ -1,37 +1,40 @@
-import "./globals.css";
+"use client";
 
-export const metadata = {
-  title: "Bersih Laundry — Manajemen Pesanan",
-  description: "Aplikasi sederhana untuk mengelola pesanan laundry",
-};
+import "./globals.css";
+import { usePathname } from "next/navigation";
+
+const MENU = [
+  { href: "/", label: "Pesanan" },
+  { href: "/pesanan/tambah", label: "+ Pesanan Baru", cta: true },
+  { href: "/pelanggan", label: "Pelanggan" },
+  { href: "/layanan", label: "Layanan & Harga" },
+];
 
 export default function RootLayout({ children }) {
+  const pathname = usePathname();
+
   return (
     <html lang="id">
       <body>
-        <div className="app-shell">
-          <aside className="sidebar">
-            <div className="brand">
-              <span className="brand-mark">🧺</span>
-              <span className="brand-name">Bersih Laundry</span>
-            </div>
-            <nav className="nav">
-              <a href="/" className="nav-link">
-                Pesanan
-              </a>
-              <a href="/pesanan/tambah" className="nav-link">
-                + Pesanan Baru
-              </a>
-              <a href="/pelanggan" className="nav-link">
-                Pelanggan
-              </a>
-              <a href="/layanan" className="nav-link">
-                Layanan &amp; Harga
-              </a>
+        <div className="bg-blob bg-blob-1"></div>
+        <div className="bg-blob bg-blob-2"></div>
+
+        <header className="navbar">
+          <div className="navbar-inner">
+            <a href="/" className="navbar-brand">
+              <span className="navbar-brand-mark">🧺</span>
+              <span className="navbar-brand-name">Bersih Laundry</span>
+            </a>
+            <nav className="navbar-nav">
+              {MENU.map((item) => {
+                const kelas = item.cta ? "navbar-cta" : (pathname === item.href ? "navbar-link navbar-link-active" : "navbar-link");
+                return <a key={item.href} href={item.href} className={kelas}>{item.label}</a>;
+              })}
             </nav>
-          </aside>
-          <main className="content">{children}</main>
-        </div>
+          </div>
+        </header>
+
+        <main className="content">{children}</main>
       </body>
     </html>
   );
