@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/lib/AuthContext";
 import { formatRupiah, formatTanggal, labelStatus, warnaStatus } from "@/lib/format";
 import { estimasiSelesai, formatDurasi, formatJamSelesai } from "@/lib/estimasi";
+import { pushDidukung, aktifkanPushNotification } from "@/lib/pushClient";
 
 export default function HalamanPesananSaya() {
   const { user, profile, loading: loadingAuth } = useAuth();
@@ -17,6 +18,7 @@ export default function HalamanPesananSaya() {
   const [jumlah, setJumlah] = useState(1);
   const [pelangganId, setPelangganId] = useState(null);
   const [antrianAktif, setAntrianAktif] = useState(0);
+  const [statusNotif, setStatusNotif] = useState("");
   const [metodeAntar, setMetodeAntar] = useState("antar_sendiri");
   const [alamatJemput, setAlamatJemput] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -110,6 +112,16 @@ export default function HalamanPesananSaya() {
     return estimasiSelesai(p.layanan, p.jumlah, antrianAktif, new Date(p.created_at));
   }
 
+  async function aktifkanNotif() {
+    setStatusNotif("Mengaktifkan...");
+    try {
+      await aktifkanPushNotification(user.id);
+      setStatusNotif("✅ Notifikasi aktif! Kamu bakal dikabarin kalau status pesanan berubah.");
+    } catch (err) {
+      setStatusNotif("❌ " + err.message);
+    }
+  }
+
   async function buatPesanan(e) {
     e.preventDefault();
 
@@ -175,6 +187,20 @@ export default function HalamanPesananSaya() {
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
+
+      {pushDidukung() && (
+        <div className="card" style={{ marginBottom: 20, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <strong style={{ fontSize: 14 }}>🔔 Notifikasi Otomatis</strong>
+            <p style={{ fontSize: 12.5, color: "var(--muted)", margin: "2px 0 0" }}>
+              {statusNotif || "Aktifkan biar kamu langsung dikabarin kalau status laundry berubah."}
+            </p>
+          </div>
+          <button className="btn btn-ghost btn-sm" type="button" onClick={aktifkanNotif}>
+            Aktifkan Notifikasi
+          </button>
+        </div>
+      )}
 
       {/* RIWAYAT PESANAN - full width di atas */}
       <div className="table-wrap table-scroll" style={{ marginBottom: 24 }}>
