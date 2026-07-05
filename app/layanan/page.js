@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { useAuth } from "@/lib/AuthContext";
 import { formatRupiah } from "@/lib/format";
 
 export default function HalamanLayanan() {
+  const { user, profile, loading: loadingAuth } = useAuth();
+  const router = useRouter();
   const [daftar, setDaftar] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -13,6 +17,13 @@ export default function HalamanLayanan() {
   const [nama, setNama] = useState("");
   const [satuan, setSatuan] = useState("kg");
   const [harga, setHarga] = useState("");
+
+  useEffect(() => {
+    if (!loadingAuth) {
+      if (!user) router.push("/login");
+      else if (profile?.role === "customer") router.push("/pesanan-saya");
+    }
+  }, [loadingAuth, user, profile, router]);
 
   useEffect(() => {
     ambilData();
@@ -56,6 +67,10 @@ export default function HalamanLayanan() {
       return;
     }
     setDaftar((prev) => prev.filter((l) => l.id !== id));
+  }
+
+  if (loadingAuth || !user || profile?.role !== "admin") {
+    return <div className="card">Memuat...</div>;
   }
 
   return (

@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { useAuth } from "@/lib/AuthContext";
 import { estimasiSelesai, formatDurasi, formatJamSelesai } from "@/lib/estimasi";
 
 export default function HalamanTambahPesanan() {
+  const { user, profile, loading: loadingAuth } = useAuth();
   const router = useRouter();
 
   const [pelangganList, setPelangganList] = useState([]);
@@ -19,6 +21,13 @@ export default function HalamanTambahPesanan() {
   const [layananId, setLayananId] = useState("");
   const [jumlah, setJumlah] = useState(1);
   const [catatan, setCatatan] = useState("");
+
+  useEffect(() => {
+    if (!loadingAuth) {
+      if (!user) router.push("/login");
+      else if (profile?.role === "customer") router.push("/pesanan-saya");
+    }
+  }, [loadingAuth, user, profile, router]);
 
   useEffect(() => {
     ambilData();
@@ -45,6 +54,10 @@ export default function HalamanTambahPesanan() {
   const layananTerpilih = layananList.find((l) => l.id === layananId);
   const totalHarga = layananTerpilih ? layananTerpilih.harga * (jumlah || 0) : 0;
 
+  // ============================================================
+  // ESTIMASI WAKTU SELESAI — dihitung ulang otomatis tiap kali
+  // layanan/jumlah berubah, berdasarkan panjang antrian saat ini.
+  // ============================================================
   const estimasi =
     layananTerpilih && jumlah > 0
       ? estimasiSelesai(layananTerpilih, jumlah, jumlahAntrian)
@@ -66,6 +79,7 @@ export default function HalamanTambahPesanan() {
       jumlah: Number(jumlah),
       total_harga: totalHarga,
       catatan,
+      metode_antar: "antar_sendiri",
       status: "diterima",
     });
     setMenyimpan(false);
@@ -76,6 +90,10 @@ export default function HalamanTambahPesanan() {
     }
     router.push("/");
     router.refresh();
+  }
+
+  if (loadingAuth || !user || profile?.role !== "admin") {
+    return <div className="card">Memuat...</div>;
   }
 
   return (
@@ -111,7 +129,7 @@ export default function HalamanTambahPesanan() {
           )}
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 24 }}>
+        <div className="layout-sidebar-right">
           <form className="card form-grid" onSubmit={simpanPesanan}>
             {error && <div className="alert alert-error">{error}</div>}
 
@@ -179,6 +197,7 @@ export default function HalamanTambahPesanan() {
             </div>
           </form>
 
+          {/* KARTU ESTIMASI WAKTU SELESAI */}
           <div className="card estimasi-card">
             <h3 style={{ fontSize: 15, marginBottom: 14 }}>⏱ Perkiraan Selesai</h3>
             {estimasi ? (

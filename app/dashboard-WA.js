@@ -70,6 +70,8 @@ export default function HalamanDashboard() {
         status,
         catatan,
         created_at,
+        metode_antar,
+        alamat_jemput,
         pelanggan ( id, nama, telepon ),
         layanan ( id, nama, satuan )
       `
@@ -196,7 +198,7 @@ export default function HalamanDashboard() {
         </div>
       )}
 
-      <div className="table-wrap">
+      <div className="table-wrap table-scroll">
         {loading ? (
           <div className="empty-state">Memuat data...</div>
         ) : pesanan.length === 0 ? (
@@ -227,8 +229,24 @@ export default function HalamanDashboard() {
                     <td>
                       <strong>{p.pelanggan?.nama || "-"}</strong>
                       <div style={{ color: "#8a9a98", fontSize: 12.5 }}>
-                        {p.pelanggan?.telepon || ""}
+                        {p.pelanggan?.telepon ? (
+                          <a
+                            href={`https://wa.me/62${p.pelanggan.telepon.replace(/^0/, "")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: "#059669", fontWeight: 600 }}
+                          >
+                            💬 {p.pelanggan.telepon}
+                          </a>
+                        ) : (
+                          ""
+                        )}
                       </div>
+                      {p.metode_antar === "jemput" && (
+                        <div style={{ color: "#ea580c", fontSize: 11.5, marginTop: 2, fontWeight: 600 }}>
+                          🛵 Jemput: {p.alamat_jemput}
+                        </div>
+                      )}
                     </td>
                     <td>{p.layanan?.nama || "-"}</td>
                     <td>
