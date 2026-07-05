@@ -68,7 +68,7 @@ export async function POST(request) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "Bersih Laundry <onboarding@resend.dev>",
+          from: "Bersih Laundry <notifikasi@laundrybersih.company>",
           to: email,
           subject: judul,
           html: `<p>${pesan}</p>`,
