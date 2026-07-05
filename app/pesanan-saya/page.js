@@ -37,6 +37,28 @@ export default function HalamanPesananSaya() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
+  useEffect(() => {
+    if (!user) return;
+
+    // Realtime: kalau ada perubahan status pesanan (dari admin manapun),
+    // otomatis tarik ulang data tanpa perlu refresh manual.
+    const channel = supabase
+      .channel("realtime-pesanan-saya")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "pesanan" },
+        () => {
+          ambilData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
   async function ambilData() {
     setLoading(true);
     setError("");
