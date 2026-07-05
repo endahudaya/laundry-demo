@@ -11,8 +11,8 @@ import { supabase } from "@/lib/supabaseClient";
 // GANTI 2 BARIS INI SESUAI DATA TOKO LAUNDRY KAMU
 // ============================================================
 const JAM_OPERASIONAL = "08.00 - 20.00 WIB, setiap hari";
-const ALAMAT_TOKO = "Jl. Contoh Alamat No. 123, Kota Kamu";
-const ADMIN_WA = "6281234567890"; // ganti dengan nomor WA admin (format 62xxxx)
+const ALAMAT_TOKO = "Jl. Widas No.7A Begadung Nganjuk, Jawa Timur 64413";
+const ADMIN_WA = "081231576071"; // ganti dengan nomor WA admin (format 62xxxx)
 
 const MENU_ADMIN = [
   { href: "/", label: "Pesanan" },
