@@ -8,14 +8,16 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-webpush.setVapidDetails(
-  "mailto:admin@bersihlaundry.com",
-  process.env.VAPID_PUBLIC_KEY,
-  process.env.VAPID_PRIVATE_KEY
-);
-
 export async function POST(request) {
   try {
+    // Setup VAPID di sini (bukan di luar), supaya proses build Vercel
+    // tidak ikut menjalankan/memvalidasi ini saat file cuma di-load.
+    webpush.setVapidDetails(
+      "mailto:admin@bersihlaundry.com",
+      process.env.VAPID_PUBLIC_KEY,
+      process.env.VAPID_PRIVATE_KEY
+    );
+
     const { userId, judul, pesan } = await request.json();
 
     if (!userId || !judul || !pesan) {
