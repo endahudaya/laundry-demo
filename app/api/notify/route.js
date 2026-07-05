@@ -19,6 +19,7 @@ export async function POST(request) {
     );
 
     const { userId, judul, pesan } = await request.json();
+    console.log("Notify dipanggil untuk userId:", userId);
 
     if (!userId || !judul || !pesan) {
       return Response.json({ error: "Data tidak lengkap" }, { status: 400 });
@@ -44,12 +45,15 @@ export async function POST(request) {
           );
           hasil.push += 1;
         } catch (err) {
+          console.error("Gagal kirim push notification:", err.statusCode, err.body || err.message);
           // subscription kadaluarsa/invalid, hapus biar bersih
           if (err.statusCode === 404 || err.statusCode === 410) {
             await supabaseAdmin.from("push_subscriptions").delete().eq("id", sub.id);
           }
         }
       }
+    } else {
+      console.log("Tidak ada push_subscriptions untuk userId:", userId);
     }
 
     // 2) KIRIM EMAIL (lewat Resend)
