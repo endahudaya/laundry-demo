@@ -39,11 +39,34 @@ export default function HalamanPesananSaya() {
     setLoading(true);
     setError("");
 
-    const { data: pelangganSaya } = await supabase
+    const { data: pelangganSaya, error: errorPelanggan } = await supabase
       .from("pelanggan")
       .select("id, telepon, alamat")
       .eq("user_id", user.id)
       .maybeSingle();
+
+    if (errorPelanggan) {
+      setError("Gagal memuat data akun: " + errorPelanggan.message);
+    } else if (!pelangganSaya) {
+      // Self-healing: kalau data pelanggan belum ada, buatkan sekarang.
+      // Pakai upsert (bukan insert biasa) supaya walaupun proses ini
+      // sempat jalan dobel, tetap tidak akan membuat data kembar.
+      const namaAwal = profile?.nama || user.email;
+      const { data: pelangganBaru, error: errorBuat } = await supabase
+        .from("pelanggan")
+        .upsert(
+          { user_id: user.id, nama: namaAwal, telepon: "", alamat: "" },
+          { onConflict: "user_id", ignoreDuplicates: false }
+        )
+        .select("id, telepon, alamat")
+        .single();
+
+      if (errorBuat) {
+        setError("Gagal menyiapkan data akun: " + errorBuat.message);
+      } else if (pelangganBaru) {
+        setPelangganId(pelangganBaru.id);
+      }
+    }
 
     if (pelangganSaya) {
       setPelangganId(pelangganSaya.id);
@@ -89,7 +112,17 @@ export default function HalamanPesananSaya() {
 
   async function buatPesanan(e) {
     e.preventDefault();
-    if (!pelangganId || !layananId) return;
+
+    if (!pelangganId) {
+      setError(
+        "Data akun kamu belum siap. Coba refresh halaman ini (Cmd+R), tunggu beberapa detik, lalu coba lagi."
+      );
+      return;
+    }
+    if (!layananId) {
+      setError("Pilih layanan dulu sebelum kirim pesanan.");
+      return;
+    }
 
     if (!whatsapp.trim()) {
       setError("Isi dulu nomor WhatsApp kamu, biar bisa dikabarin soal pesanan ini.");
