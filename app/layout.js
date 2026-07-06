@@ -12,7 +12,7 @@ import { supabase } from "@/lib/supabaseClient";
 // ============================================================
 const JAM_OPERASIONAL = "08.00 - 20.00 WIB, setiap hari";
 const ALAMAT_TOKO = "Jl. Widas No.7A Begadung Nganjuk, Jawa Timur 64413";
-const ADMIN_WA = "081231576071"; // ganti dengan nomor WA admin (format 62xxxx)
+const ADMIN_WA = "6281231576071"; // ganti dengan nomor WA admin (format 62xxxx)
 
 const MENU_ADMIN = [
   { href: "/", label: "Pesanan" },
